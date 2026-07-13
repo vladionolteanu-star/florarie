@@ -1,0 +1,17 @@
+{
+  "_comment": "Cache headers pentru secventele de cadre — al doilea vizitator nu mai descarca nimic. Adapteaza source-urile la structura proiectului; copiaza fisierul in root-ul folderului de deploy (fara cheia _comment, Vercel o ignora oricum).",
+  "headers": [
+    {
+      "source": "/assets/film/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)\\.(png|webp|avif|jpg|svg|woff2)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    }
+  ]
+}

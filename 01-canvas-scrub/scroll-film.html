@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll-Film — motor canvas scrub</title>
+<link rel="icon" href="data:,">
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  MOTORUL CANVAS SCRUB — reteta validata pe proiectul Headliners
+  ═══════════════════════════════════════════════════════════════════
+  Un film (secvente de cadre WebP) scrubuit pe scroll, fara librarii:
+    - timeline SEGS/HOLD/LEAD (mini-NLE codificat)
+    - preincarcare progresiva <img> + clamp pe frontiera descarcata
+    - fereastra glisanta de ImageBitmap (nu tii tot filmul decodat in RAM)
+    - lerp exponential pe progres (k=6.5) — miscarea nu sare niciodata
+    - micro-respiratie sinusoidala — camera nu ingheata niciodata
+    - cover-fit pe canvas, dpr redus pe mobil
+    - loader cu progress bar + poster CSS sub canvas
+    - rail de progres (dots) pe dreapta
+    - fallback prefers-reduced-motion: cadre statice
+
+  CE SCHIMBI LA UN PROIECT NOU: doar blocul CONFIG din <script> + posterele
+  + sectiunile de intro/outro. Motorul NU se rescrie — e validat.
+
+  Merge direct din file:// (preincarcarea e cu <img>, nu fetch).
+-->
+<style>
+  /* ── TOKENS — schimba-le la fiecare proiect (vezi 05-project-templates) ── */
+  :root{
+    --paper:#1c1e22;          /* fundalul paginii */
+    --paper-2:#262930;
+    --ink:#e8e9eb;            /* text principal */
+    --ink-soft:rgba(232,233,235,.72);
+    --accent:#6ee7ff;         /* accentul de brand — placeholder, inlocuieste-l */
+    --mono:ui-monospace,'Cascadia Code','JetBrains Mono',monospace;
+    --head:system-ui,'Segoe UI',sans-serif;   /* fontul de titluri al proiectului */
+    --body:system-ui,'Segoe UI',sans-serif;   /* fontul de text al proiectului */
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{background:#0b0c0e}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);overflow-x:hidden}
+  ::selection{background:var(--accent);color:#101114}
+
+  /* zgomot de film peste tot — optional, da textura */
+  .noise{
+    position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  /* ═══ INTRO — contextul dinaintea filmului (LEAD-ul respira aici) ═══ */
+  .intro{
+    min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+    padding:0 clamp(24px,7vw,120px);position:relative;
+  }
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--accent);
+    text-transform:uppercase;display:flex;align-items:center;gap:14px;margin-bottom:26px;
+  }
+  .eyebrow::before{content:"";width:18px;height:2px;background:var(--accent)}
+  .intro h1{
+    font-family:var(--head);font-weight:800;letter-spacing:-.025em;
+    font-size:clamp(44px,7.5vw,118px);line-height:.98;max-width:14ch;
+  }
+  .intro h1 em{font-style:italic;color:var(--accent)}
+  .intro p{color:var(--ink-soft);max-width:46ch;font-size:clamp(15px,1.3vw,18px);line-height:1.65;margin-top:26px}
+  .cue{
+    position:absolute;left:clamp(24px,7vw,120px);bottom:44px;
+    display:flex;align-items:center;gap:14px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .cue i{width:2px;height:44px;background:rgba(232,233,235,.16);position:relative;overflow:hidden;display:block}
+  .cue i::after{
+    content:"";position:absolute;left:0;top:0;width:100%;height:14px;background:var(--accent);
+    animation:drop 1.8s cubic-bezier(.16,1,.3,1) infinite;
+  }
+  @keyframes drop{from{transform:translateY(-16px)}to{transform:translateY(46px)}}
+
+  /* ═══ FILMUL — un singur travelling scrubuit pe scroll ═══ */
+  .story{position:relative}          /* inaltimea o seteaza JS, proportional cu filmul */
+  .stage{
+    position:sticky;top:0;height:100vh;overflow:hidden;background:#0b0c0e;
+    /* POSTER: primul cadru al filmului, ca fundal cat se incarca — schimba-l per proiect */
+    background-image:url("demo/seg1/f_001.webp");
+    background-size:cover;background-position:center;
+  }
+  .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  /* vinieta de lentila peste film — tine ochiul in centru */
+  .lens{
+    position:absolute;inset:0;z-index:20;pointer-events:none;
+    background:radial-gradient(ellipse 125% 95% at 50% 45%, transparent 60%, rgba(4,4,5,.55) 100%);
+  }
+  .loader{
+    position:absolute;inset:0;z-index:30;background:#0b0c0e;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    transition:opacity .8s cubic-bezier(.16,1,.3,1),visibility .8s;
+  }
+  .loader.gone{opacity:0;visibility:hidden}
+  .loader .pct{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--ink-soft)}
+  .loader .bar{width:min(280px,60vw);height:2px;background:rgba(232,233,235,.12);overflow:hidden}
+  .loader .bar b{display:block;height:100%;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
+
+  /* rail de progres — un dot per act (numarul lor = numarul de acte din SEGS) */
+  .rail{
+    position:fixed;right:clamp(14px,2.4vw,34px);top:50%;transform:translateY(-50%);
+    z-index:50;display:flex;flex-direction:column;gap:14px;
+  }
+  .rail span{
+    width:5px;height:5px;border-radius:50%;
+    background:rgba(232,233,235,.22);transition:background .3s,transform .3s;
+  }
+  .rail span.on{background:var(--accent);transform:scale(1.6)}
+
+  /* ═══ OUTRO — sectiunea generica de dupa film (iesirea din sticky) ═══ */
+  .outro{
+    position:relative;z-index:2;background:var(--paper);
+    padding:clamp(90px,14vh,160px) clamp(24px,7vw,120px);
+  }
+  .outro h2{
+    font-family:var(--head);font-weight:800;letter-spacing:-.02em;
+    font-size:clamp(28px,3.6vw,52px);line-height:1.05;max-width:24ch;
+  }
+  .outro h2 em{font-style:italic;color:var(--accent)}
+  .outro p{color:var(--ink-soft);max-width:56ch;font-size:clamp(15px,1.25vw,17px);line-height:1.65;margin-top:20px}
+  .outro .spec{
+    margin-top:44px;display:flex;gap:34px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:rgba(232,233,235,.45);
+    text-transform:uppercase;
+  }
+
+  @media (max-width:768px){.rail{display:none}}
+
+  /* ═══ REDUCED MOTION: cadrele-cheie, statice ═══ */
+  .static-fallback{display:none}
+  @media (prefers-reduced-motion:reduce){
+    .story,.rail,.cue{display:none}
+    .static-fallback{display:block}
+    .static-fallback img{width:100%;display:block}
+  }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<nav class="rail" aria-hidden="true">
+  <!-- un <span> per act — sincron cu valorile de act din SEGS -->
+  <span></span><span></span><span></span>
+</nav>
+
+<!-- ═══════════ INTRO ═══════════ -->
+<header class="intro">
+  <span class="eyebrow">Retetar · Canvas scrub</span>
+  <h1>Scrollul e mana ta <em>pe camera.</em></h1>
+  <p>Mai jos incepe filmul: secvente de cadre concatenate intr-un singur travelling,
+     mapate pe scroll cu netezire exponentiala si respiro intre acte.
+     Cadrele demo sunt sintetice — la proiectul real le inlocuiesti cu secventele tale.
+     Scrolleaza lent.</p>
+  <div class="cue"><i></i>Scroll</div>
+</header>
+
+<!-- ═══════════ FILMUL ═══════════ -->
+<section class="story" id="story" aria-label="Filmul scrubuit pe scroll">
+  <div class="stage">
+    <canvas id="film"></canvas>
+    <div class="lens"></div>
+    <div class="loader" id="loader">
+      <div class="pct" id="pct">SE ÎNCARCĂ · 0%</div>
+      <div class="bar"><b id="bar"></b></div>
+    </div>
+  </div>
+</section>
+
+<!-- fallback reduced-motion: primul cadru al fiecarui act, static -->
+<div class="static-fallback">
+  <img src="demo/seg1/f_001.webp" alt="Actul 1 — cadru static">
+  <img src="demo/seg2/f_001.webp" alt="Actul 2 — cadru static">
+  <img src="demo/seg3/f_001.webp" alt="Actul 3 — cadru static">
+</div>
+
+<!-- ═══════════ OUTRO ═══════════ -->
+<footer class="outro">
+  <h2>Aici incepe restul <em>paginii.</em></h2>
+  <p>Sectiunea asta exista ca sa vezi iesirea din sticky: filmul isi termina cursa,
+     stage-ul se desprinde si pagina curge mai departe. La proiectul real, aici vin
+     sectiunile tale (grid, CTA, footer).</p>
+  <div class="spec">
+    <span>SEGS/HOLD/LEAD · timeline configurabil</span>
+    <span>Sliding window · ImageBitmap</span>
+    <span>Lerp exponential k=6.5</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) return;
+
+  /* ═══════════════════════════ CONFIG ═══════════════════════════
+     TOT ce schimbi la un proiect nou e in blocul asta. */
+
+  var DIR = 'demo/';         /* folderul secventelor: DIR + <seg>/f_%03d.webp (numerotate de la 1) */
+
+  /* SEGS = [id-folder, numar-cadre, actul-pe-rail, respiro-dupa (unitati de scroll)]
+     Ordinea = ordinea filmului. "Actul" e indexul dotului din .rail care se aprinde.
+     Respiroul (HOLD) tine cadrul pe loc N unitati — camera respira intre acte.
+     REGULA DE MONTAJ: puntile (tranzitiile intre lumi) sunt vedetele; actele sunt
+     respiratiile dintre ele. Cand tai, taie din acte, niciodata din punti. */
+  var SEGS = [
+    ['seg1', 60, 0, 10],
+    ['seg2', 60, 1, 12],
+    ['seg3', 60, 2,  0]
+  ];
+  var LEAD = 10;             /* respiro la intrare: scrollul incepe, filmul sta pe primul cadru */
+  var VH_PER_UNIT = 1.28;    /* cat scroll (vh) cere o unitate — RITMUL intregii pagini.
+                                Mai mare = film mai lent. Headliners live: 1.28 */
+  var START_AT = 40;         /* release-ul loader-ului: cate cadre astepti inainte sa pornesti.
+                                Release devreme + clamp pe frontiera = perceptie de loading rapid.
+                                Headliners live: 76 (din 617 cadre) */
+  var LERP_K = 6.5;          /* netezirea exponentiala a progresului. Mai mic = mai "greu", cinematic */
+  var AHEAD = 36, BEHIND = 14;  /* fereastra de ImageBitmap: cate cadre decodate in fata/spate */
+  var BREATH_AMP = 0.0035, BREATH_PERIOD = 4200; /* micro-respiratia: amplitudine scale + perioada ms */
+  var CONCURRENCY = 12;      /* cate <img> se incarca simultan */
+  var DPR_DESKTOP = 1.5, DPR_MOBILE = 1.25;  /* cap de devicePixelRatio (mobilul deseneaza mai putini pixeli) */
+
+  /* ═════════════════════════ SFARSIT CONFIG ═════════════════════ */
+
+  /* timeline: [tip, cadru-global-de-start, lungime-in-unitati, act] */
+  var timeline = [], totalUnits = 0, totalFrames = 0, framePath = [];
+  timeline.push(['hold', 0, LEAD, 0]); totalUnits += LEAD;
+  SEGS.forEach(function(s){
+    var n = s[1];
+    for (var i = 0; i < n; i++) framePath.push(DIR + s[0] + '/f_' + String(i + 1).padStart(3, '0') + '.webp');
+    timeline.push(['seg', totalFrames, n, s[2]]);
+    totalUnits += n; totalFrames += n;
+    if (s[3]) {
+      timeline.push(['hold', totalFrames - 1, s[3], s[2]]);
+      totalUnits += s[3];
+    }
+  });
+
+  var story  = document.getElementById('story');
+  var canvas = document.getElementById('film');
+  var ctx    = canvas.getContext('2d', { alpha: false });
+  var loader = document.getElementById('loader');
+  var pct    = document.getElementById('pct');
+  var bar    = document.getElementById('bar');
+  var dots   = document.querySelectorAll('.rail span');
+
+  /* inaltimea sectiunii = tot timeline-ul, tradus in scroll */
+  story.style.height = Math.round(totalUnits * VH_PER_UNIT) + 'vh';
+
+  var dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? DPR_MOBILE : DPR_DESKTOP);
+  function resize(){
+    canvas.width  = Math.round(canvas.clientWidth * dpr);
+    canvas.height = Math.round(canvas.clientHeight * dpr);
+    lastKey = -1;
+  }
+  window.addEventListener('resize', resize);
+
+  /* progres [0..1] -> [cadru-global, act] prin timeline */
+  function locate(p){
+    var u = p * totalUnits;
+    for (var i = 0; i < timeline.length; i++){
+      var t = timeline[i], len = t[2];
+      if (u <= len || i === timeline.length - 1){
+        if (t[0] === 'hold') return [t[1], t[3]];
+        var f = t[1] + Math.min(len - 1, Math.max(0, Math.round(u)));
+        return [f, t[3]];
+      }
+      u -= len;
+    }
+    return [totalFrames - 1, SEGS[SEGS.length - 1][2]];
+  }
+
+  /* ——— preincarcare <img> in flux (merge din file:// si de pe server) ———
+     Filmul porneste dupa START_AT cadre; restul curge in fundal, iar
+     scrollul nu poate depasi niciodata frontiera incarcata. */
+  var N = totalFrames;
+  var imgs = new Array(N), loadedN = 0, frontier = 0, released = false;
+  function fetchAll(onReady){
+    var next = 0, active = 0;
+    function pump(){
+      while (active < CONCURRENCY && next < N){
+        (function(i){
+          active++;
+          var im = new Image();
+          im.onload = im.onerror = function(){
+            active--; imgs[i] = im; loadedN++;
+            while (frontier < N && imgs[frontier]) frontier++;
+            if (!released){
+              var p = Math.min(1, frontier / Math.min(N, START_AT));
+              pct.textContent = 'SE ÎNCARCĂ · ' + Math.round(p * 100) + '%';
+              bar.style.transform = 'scaleX(' + p + ')';
+              if (frontier >= Math.min(N, START_AT)){ released = true; onReady(); }
+            }
+            pump();
+          };
+          im.src = framePath[i];
+        })(next++);
+      }
+    }
+    pump();
+  }
+
+  /* cate unitati de timeline acopera cadrele [0..f) — pentru clamp pe frontiera */
+  function unitsForFrame(f){
+    var u = 0;
+    for (var i = 0; i < timeline.length; i++){
+      var t = timeline[i];
+      if (t[0] === 'hold'){ if (t[1] < f) u += t[2]; else return u; }
+      else {
+        if (f >= t[1] + t[2]) u += t[2];
+        else return u + Math.max(0, f - t[1]);
+      }
+    }
+    return u;
+  }
+
+  /* ——— fereastra glisanta de bitmaps decodate (nu tinem tot filmul in RAM) ——— */
+  var bmp = new Array(N).fill(null), inflight = {};
+  function ensure(i){
+    if (i < 0 || i >= N || bmp[i] || inflight[i]) return;
+    var im = imgs[i];
+    if (!im || !im.naturalWidth) return;
+    inflight[i] = true;
+    createImageBitmap(im).then(function(b){ bmp[i] = b; delete inflight[i]; })
+                         .catch(function(){ bmp[i] = im; delete inflight[i]; });
+  }
+  function slide(center, dir){
+    var lo = center - (dir < 0 ? AHEAD : BEHIND);
+    var hi = center + (dir < 0 ? BEHIND : AHEAD);
+    for (var i = center; i <= hi; i++) ensure(i);
+    for (var j = center - 1; j >= lo; j--) ensure(j);
+    for (var k = 0; k < N; k++){
+      if (bmp[k] && (k < lo - 18 || k > hi + 18)){ if (bmp[k].close) bmp[k].close(); bmp[k] = null; }
+    }
+  }
+  function nearest(i){
+    if (bmp[i]) return bmp[i];
+    for (var d = 1; d < 48; d++){
+      if (bmp[i - d]) return bmp[i - d];
+      if (bmp[i + d]) return bmp[i + d];
+    }
+    return null;
+  }
+
+  /* ——— desen: cover-fit + respiratie continua abia perceptibila ——— */
+  var lastKey = -1;
+  function draw(i, p, t){
+    var b = nearest(i);
+    if (!b) return;
+    var breath = 1 + BREATH_AMP * Math.sin(t / BREATH_PERIOD);   /* camera nu ingheata niciodata */
+    var scale = (1.004 + 0.02 * p) * breath;
+    var key = i * 100000 + Math.round(scale * 40000);
+    if (key === lastKey) return;                                  /* nu redesena degeaba */
+    lastKey = key;
+    var w = b.width || b.naturalWidth, h = b.height || b.naturalHeight;
+    var cw = canvas.width, ch = canvas.height;
+    var s = Math.max(cw / w, ch / h) * scale;
+    ctx.drawImage(b, (cw - w * s) / 2, (ch - h * s) / 2, w * s, h * s);
+  }
+
+  /* ——— bucla: progres netezit exponential, niciun salt, nicio aterizare ——— */
+  var cur = 0, lastT = 0, lastIdx = 0, actOn = -1;
+  function progress(){
+    var total = story.offsetHeight - window.innerHeight;
+    return Math.min(1, Math.max(0, -story.getBoundingClientRect().top / total));
+  }
+  function loop(t){
+    var dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
+    lastT = t;
+    var target = progress();
+    if (frontier < N){
+      /* clamp: scrollul nu depaseste ce e descarcat — loader-ul nu se mai vede niciodata dupa release */
+      target = Math.min(target, unitsForFrame(Math.max(0, frontier - 12)) / totalUnits);
+    }
+    cur += (target - cur) * (1 - Math.exp(-dt * LERP_K));
+    if (Math.abs(target - cur) < 0.0004) cur = target;
+    var loc = locate(cur);
+    slide(loc[0], loc[0] >= lastIdx ? 1 : -1);
+    lastIdx = loc[0];
+    draw(loc[0], cur, t);
+    if (loc[1] !== actOn){
+      actOn = loc[1];
+      dots.forEach(function(d, k){ d.classList.toggle('on', k === actOn); });
+    }
+    requestAnimationFrame(loop);
+  }
+
+  resize();
+  fetchAll(function(){
+    ensure(0);
+    var wait = setInterval(function(){
+      if (!bmp[0]) return;
+      clearInterval(wait);
+      loader.classList.add('gone');
+      requestAnimationFrame(loop);
+    }, 16);
+    for (var i = 1; i < 28; i++) ensure(i);
+  });
+})();
+</script>
+</body>
+</html>

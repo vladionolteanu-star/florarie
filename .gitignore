@@ -1,0 +1,11 @@
+# secrete
+.env
+
+# dependinte / temporare
+node_modules/
+.DS_Store
+Thumbs.db
+
+# masterele video generate (sunt continut, nu metoda; raman locale)
+02-content-pipeline/out/
+*.mp4
