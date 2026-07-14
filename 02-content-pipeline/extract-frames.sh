@@ -47,23 +47,21 @@ QUALITY=54
 #     punctul de lumina se aprinde in fata). Asa tunelul de satin se naste DIN panglica
 #     trasa peste cadru — diegetic, nu "picat din cer". Intrarea cu tub rigid (0-2s din
 #     portal) e ARUNCATA la montaj.
-# Montaj v2 (review 2026-07-14 14:28, 9 marcaje — toate reparate din edit):
-#   act1 comprimat (prea lent) · bridge12 fara capul static (oprirea brusca) ·
-#   bridge12x taiat inainte de "apa de deasupra" · act2 porneste dupa valul care
-#   disparea brusc · bridge23 fara micro-asezarea de la cap; biciul panglicii = segment
-#   propriu (bridge23w) comprimat, ultimul cadru NEGRU pur · tunelul intunecat comprimat
-#   2x (bridge23p), reveal-ul la ritm normal (bridge23r) · act3 se incheie la 4.6s,
-#   inainte de jocul ciudat de maini si de finalul ilogic.
+# Montaj v3 (review 2026-07-14 14:43, 4 marcaje):
+#   ACT1 ELIMINAT COMPLET — filmul incepe direct pe tulpina (bridge12 @0.4s); primele
+#   8 secunde nu ajutau povestea · act2 comprimat ~1.5x (prea multe miscari de mana) ·
+#   bridge23w primeste ZOOM DE PLONJARE in tunel (crop progresiv, vezi zoom_seg jos) ·
+#   act3 se opreste la 2.0s (inainte de festivalul mainilor) si se incheie cu zoom
+#   progresiv IN buchet.
 SPEC="
-act1 . . 110
 bridge12 0.4 6 100 bridge12-ts
 bridge12x 6 7.3 13 bridge12-ts
-act2 2.3 8 103
+act2 2.3 8 70
 bridge23 0.3 5.1 86
 bridge23w 5.1 5.92 9 bridge23
 bridge23p 2.25 5.5 30 bridge23-portal
 bridge23r 5.5 7.35 34 bridge23-portal
-act3 0 4.6 83
+act3 0 2.0 36
 "
 
 # Gradul de culoare per segment — porneste gol, completezi DUPA boardul de racorduri.
@@ -134,3 +132,23 @@ if [ -f "$OUTDIR/bridge12x/f_013.webp" ] && [ -f "$OUTDIR/act2/f_001.webp" ]; th
   done
   echo "joint bridge12x->act2: crossfade pe $J cadre (valul se stinge in act2)"
 fi
+
+# ——— ZOOM DE PLONJARE (DI pe cadre, montaj v3): crop progresiv centrat ———
+# Simuleaza camera care se avanta: in tunelul de satin (bridge23w — "il bagi pe
+# privitor in tunel") si in buchet la final (act3 — "zoom pe buchet si aia e").
+# Idempotent: ruleaza dupa extractie, cadrele-tinta sunt mereu proaspete.
+zoom_seg() { # $1=folder $2=primul_cadru $3=ultimul_cadru $4=zoom_final
+  n=$2
+  while [ "$n" -le "$3" ]; do
+    kk=$(printf "%03d" "$n")
+    z=$(awk "BEGIN{printf \"%.4f\", 1 + ($4 - 1) * ($n - $2 + 1) / ($3 - $2 + 1)}")
+    ffmpeg -nostdin -y -v error -i "$OUTDIR/$1/f_$kk.webp" \
+      -vf "crop=iw/$z:ih/$z,scale=$WIDTH:-2" \
+      -c:v libwebp -q:v "$QUALITY" "$OUTDIR/$1/tmp_$kk.webp"
+    mv "$OUTDIR/$1/tmp_$kk.webp" "$OUTDIR/$1/f_$kk.webp"
+    n=$((n + 1))
+  done
+  echo "zoom $1: f_$2..f_$3 -> ${4}x (plonjare)"
+}
+zoom_seg bridge23w 1 9 1.35
+zoom_seg act3 23 36 1.30
