@@ -3,8 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prototip beat — un singur travelling</title>
+<title>Florăria Iris — Povestea unui buchet · prototip beat</title>
 <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!--
   ═══════════════════════════════════════════════════════════════════
   PROTOTIP DE UN SINGUR BEAT — pasul obligatoriu inainte de filmul intreg
@@ -18,18 +21,18 @@
 -->
 <style>
   :root{
-    --paper:#1c1e22;
-    --ink:#e8e9eb;
-    --ink-soft:rgba(232,233,235,.72);
-    --accent:#6ee7ff;
-    --mono:ui-monospace,'Cascadia Code','JetBrains Mono',monospace;
-    --head:system-ui,'Segoe UI',sans-serif;
-    --body:system-ui,'Segoe UI',sans-serif;
+    --paper:#F4F1EC;
+    --ink:#141114;
+    --ink-soft:rgba(20,17,20,.72);
+    --accent:#D6367E;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --head:'Cormorant Garamond',serif;
+    --body:'Inter',system-ui,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{background:#0b0c0e}
-  body{background:#0b0c0e;color:var(--ink);font-family:var(--body);overflow-x:hidden}
-  ::selection{background:var(--accent);color:#101114}
+  html{background:var(--paper)}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);overflow-x:hidden}
+  ::selection{background:var(--accent);color:#fff}
 
   .noise{
     position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
@@ -47,7 +50,7 @@
   }
   .eyebrow::before{content:"";width:18px;height:2px;background:var(--accent)}
   .intro h1{
-    font-family:var(--head);font-weight:800;letter-spacing:-.025em;
+    font-family:var(--head);font-weight:700;letter-spacing:-.01em;
     font-size:clamp(44px,7.5vw,118px);line-height:.98;max-width:12ch;
   }
   .intro h1 em{font-style:italic;color:var(--accent)}
@@ -61,7 +64,7 @@
     font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--ink-soft);
     text-transform:uppercase;
   }
-  .cue i{width:2px;height:44px;background:rgba(232,233,235,.16);position:relative;overflow:hidden;display:block}
+  .cue i{width:2px;height:44px;background:rgba(20,17,20,.16);position:relative;overflow:hidden;display:block}
   .cue i::after{
     content:"";position:absolute;left:0;top:0;width:100%;height:14px;background:var(--accent);
     animation:drop 1.8s cubic-bezier(.16,1,.3,1) infinite;
@@ -69,11 +72,11 @@
   @keyframes drop{from{transform:translateY(-16px)}to{transform:translateY(46px)}}
 
   /* ═══ BEAT (pinned) ═══ */
-  .beat{height:520vh;position:relative}   /* inaltimea = cat de lent se scrubuie beat-ul */
+  .beat{height:1700vh;position:relative}   /* inaltimea = cat de lent se scrubuie beat-ul (432 cadre) */
   .pin{
-    position:sticky;top:0;height:100vh;overflow:hidden;background:#0b0c0e;
+    position:sticky;top:0;height:100vh;overflow:hidden;background:#141114;
     /* POSTER: primul cadru al secventei */
-    background-image:url("demo/seg2/f_001.webp");background-size:cover;background-position:center;
+    background-image:url("assets/film/act1/f_001.webp");background-size:cover;background-position:center;
   }
   .pin canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   .lens{
@@ -81,13 +84,13 @@
     background:radial-gradient(ellipse 125% 95% at 50% 45%, transparent 60%, rgba(4,4,5,.55) 100%);
   }
   .loader{
-    position:absolute;inset:0;z-index:30;background:#0b0c0e;
+    position:absolute;inset:0;z-index:30;background:var(--paper);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
     transition:opacity .8s cubic-bezier(.16,1,.3,1),visibility .8s;
   }
   .loader.gone{opacity:0;visibility:hidden}
   .loader .pct{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--ink-soft)}
-  .loader .bar{width:min(280px,60vw);height:2px;background:rgba(232,233,235,.12);overflow:hidden}
+  .loader .bar{width:min(280px,60vw);height:2px;background:rgba(20,17,20,.12);overflow:hidden}
   .loader .bar b{display:block;height:100%;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
 
   /* ═══ OUTRO ═══ */
@@ -96,14 +99,14 @@
     padding:clamp(90px,14vh,160px) clamp(24px,7vw,120px);
   }
   .outro h2{
-    font-family:var(--head);font-weight:800;letter-spacing:-.02em;
+    font-family:var(--head);font-weight:700;letter-spacing:-.01em;
     font-size:clamp(28px,3.6vw,52px);line-height:1.05;max-width:24ch;
   }
   .outro h2 em{font-style:italic;color:var(--accent)}
   .outro p{color:var(--ink-soft);max-width:56ch;font-size:clamp(15px,1.25vw,17px);line-height:1.65;margin-top:20px}
   .outro .spec{
     margin-top:44px;display:flex;gap:34px;flex-wrap:wrap;
-    font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:rgba(232,233,235,.45);
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:rgba(20,17,20,.45);
     text-transform:uppercase;
   }
 
@@ -121,11 +124,10 @@
 <div class="noise"></div>
 
 <header class="intro">
-  <span class="eyebrow">Prototip 01 · Un singur beat</span>
-  <h1>Un singur <em>drum.</em></h1>
-  <p>Un travelling continuu, fara nicio taietura; scrollul e mana ta pe camera.
-     Asta e pagina pe care o arati clientului INAINTE sa construiesti tot filmul.
-     Scrolleaza lent.</p>
+  <span class="eyebrow">Florăria Iris · din 1970</span>
+  <h1>Povestea unui <em>buchet.</em></h1>
+  <p>Un travelling continuu, fără nicio tăietură — scrollul e mâna care leagă buchetul.
+     Scrollează lent.</p>
   <div class="cue"><i></i>Scroll</div>
 </header>
 
@@ -141,8 +143,8 @@
 </section>
 
 <div class="static-fallback">
-  <img src="demo/seg2/f_001.webp" alt="Primul cadru al beat-ului">
-  <img src="demo/seg2/f_060.webp" alt="Ultimul cadru al beat-ului">
+  <img src="assets/film/act1/f_001.webp" alt="Atelierul în zori — bujori în găleți">
+  <img src="assets/film/bridge12b/f_144.webp" alt="Mâinile floristului leagă buchetul">
 </div>
 
 <footer class="outro">
@@ -162,8 +164,12 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   /* ═══════════════ CONFIG — tot ce schimbi e aici ═══════════════ */
-  var N = 60;                                    /* cate cadre are secventa */
-  var SRC = function(i){ return 'demo/seg2/f_' + String(i + 1).padStart(3, '0') + '.webp'; };
+  var N = 432;                                   /* act1 (144) + bridge12a (144) + bridge12b (144) */
+  var SRC = function(i){
+    var seg = i < 144 ? 'act1' : i < 288 ? 'bridge12a' : 'bridge12b';
+    var k = i % 144;
+    return 'assets/film/' + seg + '/f_' + String(k + 1).padStart(3, '0') + '.webp';
+  };
   var PRE = 0.04, POST = 0.96;                   /* capete de "asezare" la intrarea/iesirea din pin */
   var LERP_K = 6.5;                              /* netezirea exponentiala */
   var AHEAD = 32, BEHIND = 12;                   /* fereastra de bitmaps */

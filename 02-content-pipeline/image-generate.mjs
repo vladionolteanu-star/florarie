@@ -100,6 +100,74 @@ const SCENES = {
   /* Reteta de reparatie (base conditioning) — cand un cadru validat are UN detaliu gresit,
      adauga o intrare cu base: "<cadru>.png" si promptul:
      "KEEP ABSOLUTELY EVERYTHING ... EXCEPT ONE FIX: <fix>. Do not change anything else." */
+  "act1-fix-crate": { base: "act1-wide-v1.png", file: "act1-wide", prompt: `${FILM}
+KEEP ABSOLUTELY EVERYTHING in the attached frame identical — composition, camera angle, lighting,
+peonies, metal buckets, black-clothed table, rough white plaster wall, black woven-cord drum —
+EXCEPT ONE FIX: replace the light natural-wood cherry crate with a DARK, near-black wooden crate,
+same position on the table, same dark cherries heaped inside it. Do not change anything else.
+CRITICAL: the atelier stays completely EMPTY exactly as in the attached frame — ZERO people,
+zero hands, zero figures anywhere in the frame.` },
+  /* ═══ PUNTI = PORTALURI (nu masti). Fiecare punte trece PRIN interiorul unui element
+     diegetic: camera intra IN el, ii traverseaza interiorul, si iese in lumea urmatoare.
+     Cele doua lumi NU se vad niciodata simultan — lumea 2 apare doar refractata prin element,
+     apoi devine reala. DOUA cadre-ancora dedicate per punte (NU refolosesti wide-ul actului
+     urmator ca last-frame): INTERIOR (macro in interiorul elementului, lumea 2 refractata =
+     punctul de control intermediar) si EMERGE (iesirea in lumea 2, refractia se resoarbe;
+     base-chained din wide-ul actului urmator).
+     LANTUL DE CUSATURI: puntea porneste pe chiar ultimul cadru al actului precedent (starea
+     noua a elementului — picatura, bucla — se naste IN clip), iar actul urmator porneste pe
+     EMERGE. Validezi ancorele astea ca STILLS inainte de orice video — sunt cele mai exotice
+     cadre din film si cele mai predispuse la regenerari. Vezi veo-generate.mjs bridge*a/*b. ═══ */
+
+  /* — Puntea 1->2: prin PICATURA de apa — */
+  // (OPTIONAL, nu e pe drumul critic) cadru de control cu picatura-portal pendanta — folosit
+  // DOAR daca proba single-clip / split-ul pe INTERIOR nu tine si ai nevoie de un pin in plus.
+  "bridge12-drop": { base: "act1-f2.png", file: "bridge12-drop", prompt: `${FILM}
+KEEP the attached frame's world identical — same tall pink peony bloom, same dark metal bucket,
+same rough white plaster wall, same warm window light, same film stock and color grade — EXCEPT:
+the stem is lifted just clear of the water and a SINGLE large water DROPLET hangs pendant at the
+base of the bloom, trembling and backlit, a bright warm caustic highlight glowing inside it. The
+droplet is prominent and sharp in the foreground — it is the portal the camera will dive into.
+Nothing else added, at most a hint of a dark-clad hand at the very edge, no text.` },
+  // INTERIOR: punctul de control — din INTERIORUL picaturii, world 2 refractat (joint a/b cade aici)
+  "bridge12-portal": { base: "act2-wide.png", file: "bridge12-portal", prompt: `${FILM}
+Render a MACRO frame from INSIDE a large water droplet — the camera is submerged in warm sunlit water.
+Fill the ENTIRE frame with liquid: soft floating micro-bubbles, warm caustic light rippling across,
+the curved meniscus refracting at the edges. Deep inside the liquid lens, REFRACTED and turned slightly
+upside-down, appear the blurred shapes of the florist's dark-clad hands laying pink peony stems on the
+black-clothed table (the world of the attached frame, seen THROUGH water). No sharp room, no wall — only
+water, caustics, bubbles, and the refracted dreamlike hint of the atelier suspended in the lens.
+Same film stock and warm grade as the attached frame. ONE single photograph, edge-to-edge water.` },
+  // EMERGE: last-frame dedicat — camera iese din apa in atelier, refractia se resoarbe
+  "bridge12-emerge": { base: "act2-wide.png", file: "bridge12-emerge", prompt: `${FILM}
+KEEP the attached atelier frame's composition, hands, table, peonies, wall and light identical — EXCEPT:
+render the instant the camera SURFACES out of water into this scene. A last thin veil of water-refraction
+and warm caustic light is lifting off the TOP edge of the frame, a few surface-tension distortions and tiny
+droplets still resolving at the very top; the lower two-thirds are already sharp and clean. It reads as
+emerging from a droplet into the real atelier. Do not change the underlying scene. ONE single photograph.` },
+
+  /* — Puntea 2->3: prin BUCLA de panglica (tunel de satin) — */
+  // INTERIOR: punctul de control — din interiorul tunelului de satin, world 3 la capat (joint a/b)
+  "bridge23-portal": { base: "act3-wide.png", file: "bridge23-portal", prompt: `${FILM}
+Render a MACRO frame from INSIDE a loop of BLACK SATIN RIBBON — the camera is deep inside a tunnel of
+black fabric. Black satin wraps the ENTIRE frame; the weave of the fabric is visible in macro with faint
+specular highlights running along the fibres. At the far end of the tunnel a small warm point of window
+light glows, and against it the finished bouquet (pink peonies, burgundy anthurium) is only a soft warm
+blur. No room, no wall, no hands — only the black satin tunnel and the far warm light. Same film stock and
+grade as the attached frame. ONE single photograph, black satin edge-to-edge.` },
+  // EMERGE: last-frame dedicat — camera iese din tunelul de panglica pe buchetul finit
+  "bridge23-emerge": { base: "act3-wide.png", file: "bridge23-emerge", prompt: `${FILM}
+KEEP the attached frame's finished bouquet, dark-clad arm, rough white plaster wall and rim light identical
+— EXCEPT: render the instant the camera EMERGES from a tunnel of black satin ribbon onto this bouquet. The
+black ribbon that formed the tunnel still frames the very EDGES of the frame (soft, dark, out of focus),
+sweeping outward as the bouquet opens sharp in the centre. The ribbon at the edges IS the same black ribbon
+tied on the bouquet — one physical object. Do not change the bouquet itself. ONE single photograph.` },
+  "act2-fix-wall": { base: "act2-f2.png", file: "act2-f2", prompt: `${FILM}
+KEEP ABSOLUTELY EVERYTHING in the attached frame identical — composition, camera angle, lighting,
+the hands binding the bouquet, the black ribbon loop, peonies, anthurium, cherry garland, black
+woven-cord drum, black candle — EXCEPT ONE FIX: replace the exposed red brick wall in the
+background with the same rough white-plaster wall seen elsewhere in the atelier, warm daylight
+and soft shadows raking across it. Do not change anything else.` },
 };
 
 // ——— secvente de miscare (dolly, efect tinyPod): cadrul urmator conditionat pe cel precedent ———

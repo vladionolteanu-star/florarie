@@ -34,9 +34,12 @@ QUALITY=54
 
 # id  ss(sec)  to(sec)  frames  — gol (.) inseamna de la inceput / pana la final
 # COMPLETEAZA cu segmentele proiectului tau; numerele de cadre = coloana 2 din SEGS.
+# Beat de test (act1 + bridge12): clipurile intregi, 8s x 18fps = 144 cadre fiecare.
+# Trim-urile se decid DUPA validarea beat-ului, din mastere.
 SPEC="
-act1 . . 94
-bridge12 . . 60
+act1 . . 144
+bridge12a . . 144
+bridge12b . . 144
 "
 
 # Gradul de culoare per segment — porneste gol, completezi DUPA boardul de racorduri.

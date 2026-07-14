@@ -33,6 +33,62 @@ Referința de calitate: thetinypod.com. Gramatica fiecărui beat:
 
 Corolar: **punțile dintre lumi trec printr-un element diegetic sau prin lumină** (prin rig,
 prin glare, prin cortină) — niciodată swap de imagini la vedere, niciodată crossfade expus.
+Dar „a trece printr-un element" e doar minimul: ridică-l la standard de **portal** — vezi secțiunea
+următoare, e cea mai importantă și cea mai des ratată regulă de tranziție.
+
+## Punți = portaluri, nu perdele (regula de bridge)
+
+O punte proastă e o **perdea**: un element trece prin fața camerei, acoperă cadrul, lumea se schimbă
+în spate, elementul se retrage. Funcțional, dar previzibil — spectatorul înțelege că „ceva a mascat un
+cut" și scrollează mai departe fără să-l observe. O punte bună e un **portal**: camera intră ÎN elementul
+diegetic, îi traversează interiorul, și iese în lumea următoare. Cele două lumi **nu sunt niciodată
+vizibile simultan** — lumea 2 apare doar *refractată prin element* (prin picătură, prin bucla de
+panglică, prin reflexie pe metal), apoi devine reală pe măsură ce traversezi. Elementul-punte există
+**fizic în ambele lumi** (aceeași picătură de pe tulpină, aceeași panglică de pe buchet).
+
+Taxonomie — de la banal la magic. **Ținta e nivel 3-4, niciodată sub 3:**
+
+| Nivel | Tehnică | Efect |
+|-------|---------|-------|
+| 0 · Cut | cadrul se schimbă brusc | rupere |
+| 1 · Wipe | obiect trece prin fața camerei | „am ascuns un cut" |
+| 2 · Mască fizică | camera intră în element, fill 100% opac | „n-am văzut cut-ul" |
+| 3 · **Portal optic** | camera intră ÎN element, traversează, iese refractat | „cum au făcut asta?!" |
+| 4 · **Metamorfoză** | elementul se *transformă* în ceva din lumea 2 | „e aceeași lume" |
+
+**Nota la nivel 4:** metamorfoza se face prin **rimă de formă** (spirala tulpinilor → spirala
+panglicii: potrivire de compoziție și de mișcare), NICIODATĂ prin texture-morph — „morphing
+flowers" e AI tell fatal, nu tranziție. Dacă nu poți construi rima de formă, rămâi la nivel 3.
+
+**Nota de scrub:** filmul nu rulează, e SCRUBUIT — degetul vizitatorului poate îngheța ORICE cadru.
+Momentul de străpungere (pierce) trebuie să stea în picioare ca fotografie crispă: fără motion blur
+smear, fără „burst" ilizibil. În MOTION: *„every frame must stand alone as a crisp 35mm still"*.
+
+Concret în pipeline (`02-content-pipeline/`), o punte-portal cere patru lucruri:
+
+1. **Cadre-ancoră dedicate** per punte — NU refolosești wide-ul actului următor ca last-frame.
+   Două ancore noi: INTERIOR (macro în interiorul elementului, lumea 2 refractată — punctul de
+   control) și EMERGE (ieșirea, refracția se resoarbe; base-chained din wide-ul actului următor).
+   **Lanțul de cusături e sfânt pe AMBELE capete**: puntea PORNEȘTE pe chiar ultimul cadru al
+   actului precedent — orice stare nouă a elementului-portal (picătura, bucla) se naște ÎN clip,
+   nu între clipuri — iar actul următor PORNEȘTE pe cadrul EMERGE. Fiecare joint din montaj cade
+   pe două cadre identice; altfel ai reintrodus un cut nivel 0 chiar la ușa portalului.
+2. **Prompturi de bridge 3-4× mai lungi decât actele** — cu traseul optic (refracție, focus shift,
+   distorsiunea care se corectează), ce vede camera la 25/50/75%, ce NU face (nu se oprește, nu se
+   întoarce, nu face dissolve, nu arată două lumi simultan), și fizica luminii în interior (caustice
+   prin apă, reflexii pe satin).
+3. **Cadru macro-interior generat** (nu doar scris ca PNG de reparație) ca punct de control intermediar:
+   puntea rulează în 2 clipuri care se întâlnesc pe cadrul INTERIOR (cel mai adânc punct), nu pe o mască
+   opacă. Probează întâi single-clip <ultimul cadru al actului>→EMERGE pe `--fast`; dacă ține
+   continuitatea, puntea rămâne UN clip și montajul se simplifică.
+4. **Ancorele de portal se validează ca stills înainte de orice video** — sunt cele mai exotice cadre
+   din film. La INTERIOR, diferența dintre nivel 3 și un AI tell e lizibilitatea apei/țesăturii:
+   menisc, bule, caustice vizibile — altfel „refracția" citește ca double exposure. Regula asta e
+   implicită de-acum pentru orice punte din retetar.
+
+Punțile sunt ~30% din durata filmului dar ~80% din impactul emoțional — singurul moment în care
+vizitatorul simte „nu e o prezentare, e un film". Dacă tratezi puntea ca pe un cut mascat, ai ratat
+oportunitatea principală a întregului pipeline.
 
 ## Montaj
 
