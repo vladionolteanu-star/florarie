@@ -109,6 +109,24 @@
   }
   .rail i.on{background:var(--accent);transform:scale(1.6)}
 
+  /* ═══ OUTRO — dupa film pagina se aseaza pe paper, nu pe negru ═══ */
+  .outro{
+    padding:14vh 24px calc(150px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;
+  }
+  .outro .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--accent);
+  }
+  .outro h2{
+    font-family:var(--head);font-weight:600;letter-spacing:-.01em;
+    font-size:clamp(28px,6vw,44px);line-height:1.15;max-width:18ch;
+  }
+  .outro .txt{
+    font-family:var(--body);font-size:15.5px;line-height:1.65;color:var(--ink-soft);
+    max-width:52ch;
+  }
+
   /* ═══ REDUCED MOTION ═══ */
   .static-fallback{display:none}
   @media (prefers-reduced-motion:reduce){
@@ -143,6 +161,14 @@
   <img src="assets/film/bridge12/f_001.webp" alt="Bujorul ridicat din apă — atelierul în zori">
   <img src="assets/film/act3/f_036.webp" alt="Buchetul finit, întins spre tine">
 </div>
+
+<section class="outro">
+  <p class="eyebrow">Despre pagina asta</p>
+  <h2>Scrollul e mâna care leagă buchetul.</h2>
+  <p class="txt">Filmul de mai sus nu rulează singur — înaintează cadru cu cadru, în ritmul
+  degetului tău: bujorii ridicați din apă, drumul prin picătură, tunelul panglicii,
+  buchetul întins spre tine. Florăria Iris leagă buchete în București din 1970.</p>
+</section>
 
 <script>
 (function(){
