@@ -138,7 +138,10 @@ upside-down, appear the blurred shapes of the florist's dark-clad hands laying p
 black-clothed table (the world of the attached frame, seen THROUGH water). No sharp room, no wall — only
 water, caustics, bubbles, and the refracted dreamlike hint of the atelier suspended in the lens.
 Same film stock and warm grade as the attached frame. ONE single photograph, edge-to-edge water.` },
-  // EMERGE: last-frame dedicat — camera iese din apa in atelier, refractia se resoarbe
+  // EMERGE: last-frame dedicat — camera iese din apa in atelier, refractia se resoarbe.
+  // LECTIE (validare Vlad, 2026-07-14): valul NU are voie sa fie o LINIE DE APA orizontala
+  // peste incapere — citeste "atelier inundat" (eroare de logica). La regenerare: valul =
+  // picaturi si dare de apa PE LENTILA (lens droplets, streaks), fara waterline in scena.
   "bridge12-emerge": { base: "act2-wide.png", file: "bridge12-emerge", prompt: `${FILM}
 KEEP the attached atelier frame's composition, hands, table, peonies, wall and light identical — EXCEPT:
 render the instant the camera SURFACES out of water into this scene. A last thin veil of water-refraction

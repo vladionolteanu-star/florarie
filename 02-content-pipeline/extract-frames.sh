@@ -34,12 +34,22 @@ QUALITY=54
 
 # id  ss(sec)  to(sec)  frames  — gol (.) inseamna de la inceput / pana la final
 # COMPLETEAZA cu segmentele proiectului tau; numerele de cadre = coloana 2 din SEGS.
-# Beat de test (act1 + bridge12): clipurile intregi, 8s x 18fps = 144 cadre fiecare.
-# Trim-urile se decid DUPA validarea beat-ului, din mastere.
+# FILMUL INTREG din masterele existente (fara regenerari):
+#   - bridge12b INTREG (0-8s: startul pastreaza jointul IDENTIC cu finalul lui bridge12a,
+#     finalul = ancora emerge, singurul cadru registrat cu act2 => sursa buna de blend)
+#     dar COMPRIMAT la 60 de cadre: trecerea prin apa e o maturare rapida pe scroll.
+#   - cusatura bridge12b->act2 e netezita DUPA extractie (vezi JOINT SMOOTHING la final).
+#     Cauza de fond (pt. urmatoarea runda platita): ancora bridge12-emerge are valul ca
+#     LINIE DE APA orizontala peste incapere => citeste "atelier inundat". La regenerare:
+#     valul = picaturi/dare pe LENTILA, niciodata waterline peste camera.
+#   - bridge23 e masterul vechi (perdea/nivel 2) — placeholder pana la portalul 2->3.
 SPEC="
 act1 . . 144
 bridge12a . . 144
-bridge12b . . 144
+bridge12b . . 60
+act2 . . 144
+bridge23 . . 144
+act3 . . 144
 "
 
 # Gradul de culoare per segment — porneste gol, completezi DUPA boardul de racorduri.
@@ -58,7 +68,13 @@ echo "$SPEC" | while read -r id ss to fr; do
   args=""
   [ "$ss" != "." ] && args="$args -ss $ss"
   [ "$to" != "." ] && args="$args -to $to"
-  vf="fps=$FPS,scale=$WIDTH:-2"
+  # fps-ul REAL = cadre / durata intervalului — asa numarul cerut de cadre acopera TOT
+  # intervalul (compresie temporala), nu doar primele fr/FPS secunde (truncare!).
+  dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "out/$id.mp4")
+  s0=$ss; [ "$s0" = "." ] && s0=0
+  s1=$to; [ "$s1" = "." ] && s1=$dur
+  segfps=$(awk "BEGIN{printf \"%.6f\", $fr / ($s1 - $s0)}")
+  vf="fps=$segfps,scale=$WIDTH:-2"
   g=$(grade_for "$id")
   [ -n "$g" ] && vf="$vf,$g"
 
@@ -83,3 +99,25 @@ echo "$SPEC" | while read -r id ss to fr; do
   kb=$(du -sk "$OUTDIR/$id" | cut -f1)
   echo "$id: $n cadre, ${kb}KB (asteptat $fr)"
 done
+
+# ——— JOINT SMOOTHING (post, fara regenerare): cusatura bridge12b -> act2 ———
+# bridge12b se termina cu val de apa pe lentila; masterul act2 porneste curat => pop dur.
+# Crossfade IN ACEEASI LUME (permis — nu e trecere intre lumi: acelasi atelier, doar valul
+# de apa se stinge): ULTIMUL cadru de apa (f_060 — compozitional aproape identic cu startul
+# act2, ambele derivate din act2-wide) se stinge peste primele J cadre din act2. Contra unui
+# cadru FIX, nu pereche-cu-pereche — altfel mainile din apa (deplasate) fac dubluri vizibile.
+# Idempotent: ruleaza dupa extractia act2 (cadrele-tinta sunt mereu proaspete).
+J=12
+if [ -f "$OUTDIR/bridge12b/f_060.webp" ] && [ -f "$OUTDIR/act2/f_001.webp" ]; then
+  k=1
+  while [ "$k" -le "$J" ]; do
+    kk=$(printf "%03d" "$k")
+    w=$(awk "BEGIN{printf \"%.4f\", $k/($J+1)}")
+    ffmpeg -nostdin -y -v error -i "$OUTDIR/act2/f_$kk.webp" -i "$OUTDIR/bridge12b/f_060.webp" \
+      -filter_complex "[0:v]format=gbrp[a];[1:v]format=gbrp[b];[a][b]blend=all_expr='A*$w+B*(1-$w)'" \
+      -frames:v 1 -c:v libwebp -q:v "$QUALITY" "$OUTDIR/act2/tmp_$kk.webp"
+    mv "$OUTDIR/act2/tmp_$kk.webp" "$OUTDIR/act2/f_$kk.webp"
+    k=$((k + 1))
+  done
+  echo "joint bridge12b->act2: crossfade pe $J cadre (valul de apa se stinge in act2)"
+fi
