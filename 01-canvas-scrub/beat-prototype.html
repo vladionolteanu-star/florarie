@@ -72,7 +72,7 @@
   @keyframes drop{from{transform:translateY(-16px)}to{transform:translateY(46px)}}
 
   /* ═══ BEAT (pinned) ═══ */
-  .beat{height:1700vh;position:relative}   /* inaltimea = cat de lent se scrubuie beat-ul (432 cadre) */
+  .beat{height:3000vh;position:relative}   /* inaltimea = cat de lent se scrubuie filmul (780 cadre) */
   .pin{
     position:sticky;top:0;height:100vh;overflow:hidden;background:#141114;
     /* POSTER: primul cadru al secventei */
@@ -144,7 +144,7 @@
 
 <div class="static-fallback">
   <img src="assets/film/act1/f_001.webp" alt="Atelierul în zori — bujori în găleți">
-  <img src="assets/film/bridge12b/f_144.webp" alt="Mâinile floristului leagă buchetul">
+  <img src="assets/film/act3/f_144.webp" alt="Buchetul finit, întins spre tine">
 </div>
 
 <footer class="outro">
@@ -164,11 +164,17 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   /* ═══════════════ CONFIG — tot ce schimbi e aici ═══════════════ */
-  var N = 432;                                   /* act1 (144) + bridge12a (144) + bridge12b (144) */
+  /* filmul intreg, in ordinea povestii; [folder, nr. cadre] — sincron cu extract-frames.sh */
+  var SEGS = [
+    ['act1', 144], ['bridge12a', 144], ['bridge12b', 60],
+    ['act2', 144], ['bridge23', 144], ['act3', 144]
+  ];
+  var N = 0; SEGS.forEach(function(s){ N += s[1]; });   /* 780 */
   var SRC = function(i){
-    var seg = i < 144 ? 'act1' : i < 288 ? 'bridge12a' : 'bridge12b';
-    var k = i % 144;
-    return 'assets/film/' + seg + '/f_' + String(k + 1).padStart(3, '0') + '.webp';
+    for (var s = 0; s < SEGS.length; s++){
+      if (i < SEGS[s][1]) return '/01-canvas-scrub/assets/film/' + SEGS[s][0] + '/f_' + String(i + 1).padStart(3, '0') + '.webp';
+      i -= SEGS[s][1];
+    }
   };
   var PRE = 0.04, POST = 0.96;                   /* capete de "asezare" la intrarea/iesirea din pin */
   var LERP_K = 6.5;                              /* netezirea exponentiala */
