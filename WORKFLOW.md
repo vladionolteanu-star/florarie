@@ -85,6 +85,12 @@ Fotografii reale (refs/)
 
 ## 6. Rundele de feedback
 
+- **Editorul de review** (`01-canvas-scrub/review.html`, local sau live la
+  `/01-canvas-scrub/review.html`): clientul/regizorul scrubuie cadrele reale, marchează
+  IN/OUT pe cadre + tip problemă + notă, și exportă un raport JSON. Fiecare marcaj vine
+  cu segmentul, cadrele și SECUNDELE EXACTE din masterul mp4 — direct mapabile pe
+  trim (extract-frames.sh), blend de cusătură, regenerare sau DI. Screenshots = doar
+  pentru probleme de layout, nu de film.
 - Runda de montaj: `04-session-handoff/FEEDBACK-ROUND.md`.
 - Runda de finisare (culori + loading): `04-session-handoff/POLISH-ROUND.md`.
 - Orice regulă nouă învățată se scrie înapoi în `TASTE-RULES.md`.

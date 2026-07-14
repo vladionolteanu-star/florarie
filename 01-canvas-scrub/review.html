@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review film — Florăria Iris</title>
+<link rel="icon" href="data:,">
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  EDITOR DE REVIEW — metoda de colaborare pe film (in loc de screenshots)
+  ═══════════════════════════════════════════════════════════════════
+  Scrubui cadrele reale ale filmului, marchezi IN/OUT pe cadre, alegi tipul
+  problemei si notezi. Exporti raportul JSON si i-l dai agentului: fiecare
+  marcaj vine cu segmentul, cadrele si SECUNDELE EXACTE din masterul mp4 —
+  direct mapabile pe trim (extract-frames.sh), blend, regenerare sau DI.
+
+  Taste: ←/→ ±1 cadru · Shift+←/→ ±10 · Space play/pauza · I punct IN ·
+         O punct OUT · Enter adauga marcajul
+  SEGS de mai jos se tine sincron cu extract-frames.sh (SPEC).
+-->
+<style>
+  :root{
+    --paper:#F4F1EC; --ink:#141114; --ink-soft:rgba(20,17,20,.72);
+    --accent:#D6367E; --mono:'JetBrains Mono',ui-monospace,monospace;
+    --body:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);padding:18px;max-width:1200px;margin:0 auto}
+  h1{font-family:var(--mono);font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
+  .viewer{position:relative;background:#141114;border-radius:6px;overflow:hidden}
+  .viewer img{width:100%;display:block;aspect-ratio:16/9;object-fit:contain}
+  .hud{
+    position:absolute;left:10px;bottom:10px;background:rgba(20,17,20,.78);color:#fff;
+    font-family:var(--mono);font-size:12px;padding:6px 10px;border-radius:4px;letter-spacing:.06em;
+  }
+  .hud b{color:#ff7ab8}
+  .loadbox{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:var(--mono);font-size:13px;letter-spacing:.2em;background:#141114}
+  .ruler{display:flex;height:14px;border-radius:3px;overflow:hidden;margin:10px 0 2px;cursor:pointer;position:relative}
+  .ruler .seg{height:100%;position:relative;opacity:.85}
+  .ruler .seg:nth-child(odd){background:#3a3340}
+  .ruler .seg:nth-child(even){background:#6b5a6b}
+  .marks{position:relative;height:8px;margin-bottom:6px}
+  .marks i{position:absolute;top:0;height:100%;background:var(--accent);border-radius:2px;min-width:2px}
+  .cursor{position:absolute;top:-2px;width:2px;height:18px;background:#fff;outline:1px solid #141114;pointer-events:none}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+  button,select{
+    font-family:var(--mono);font-size:12px;letter-spacing:.05em;padding:8px 12px;border-radius:4px;
+    border:1px solid rgba(20,17,20,.25);background:#fff;color:var(--ink);cursor:pointer;
+  }
+  button:hover{border-color:var(--ink)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .inout{font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+  textarea{
+    width:100%;font-family:var(--body);font-size:14px;padding:10px;border-radius:4px;
+    border:1px solid rgba(20,17,20,.25);background:#fff;min-height:44px;resize:vertical;
+  }
+  .list{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+  .mk{
+    display:flex;gap:10px;align-items:baseline;background:#fff;border:1px solid rgba(20,17,20,.15);
+    border-radius:4px;padding:8px 10px;font-size:13px;cursor:pointer;
+  }
+  .mk:hover{border-color:var(--accent)}
+  .mk .where{font-family:var(--mono);font-size:11.5px;white-space:nowrap;color:var(--accent)}
+  .mk .note{flex:1}
+  .mk .del{color:var(--ink-soft);font-family:var(--mono);text-decoration:none}
+  .footer{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:10px;line-height:1.5}
+  .joints{margin-top:22px}
+  .joints h2{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+  .jrow{display:flex;gap:2px;margin-bottom:10px;align-items:center}
+  .jrow img{width:calc(50% - 30px);aspect-ratio:16/9;object-fit:cover;border-radius:3px}
+  .jrow span{font-family:var(--mono);font-size:10.5px;width:56px;text-align:center;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<h1>Review film · marchează cadrele cu probleme</h1>
+
+<div class="viewer">
+  <img id="frame" alt="">
+  <div class="hud" id="hud">—</div>
+  <div class="loadbox" id="loadbox">SE ÎNCARCĂ CADRELE · <span id="lpct">0%</span></div>
+</div>
+
+<div class="ruler" id="ruler"></div>
+<div class="marks" id="marksbar"></div>
+<input type="range" id="slider" min="0" value="0" step="1">
+
+<div class="bar">
+  <button id="bPlay">▶ play</button>
+  <button id="bPrev">← cadru</button>
+  <button id="bNext">cadru →</button>
+  <button id="bIn">I · punct IN</button>
+  <button id="bOut">O · punct OUT</button>
+  <span class="inout" id="inout">fără selecție — marcajul va fi pe cadrul curent</span>
+</div>
+
+<div class="bar">
+  <select id="tag">
+    <option value="blocaj">blocaj / sacadare</option>
+    <option value="salt">salt vizibil / jump</option>
+    <option value="dissolve">dissolve / ghosting</option>
+    <option value="ai-tell">AI tell (față, morph, sincron)</option>
+    <option value="logica">eroare de logică (spațiu/apă/obiecte)</option>
+    <option value="culoare">culoare / racord DI</option>
+    <option value="ritm">ritm (prea lent / prea rapid)</option>
+    <option value="altceva">altceva</option>
+  </select>
+  <button class="primary" id="bAdd">Adaugă marcajul (Enter)</button>
+</div>
+<textarea id="note" placeholder="Notă opțională — ce vezi, ce ai vrea să se întâmple…"></textarea>
+
+<div class="list" id="list"></div>
+
+<div class="footer">
+  <button class="primary" id="bExport">Exportă raportul (JSON descărcat + clipboard)</button>
+  <button id="bImport">Importă raport</button>
+  <button id="bClear">Șterge tot</button>
+</div>
+<p class="hint">
+  Taste: ←/→ un cadru · Shift+←/→ zece · Space play/pauză · I/O in-out · Enter adaugă.
+  Redarea rulează în ritmul scroll-ului (cadru constant), nu în timpul real al clipurilor.
+  Marcajele se salvează automat în browser; exportul JSON mi-l dai mie — conține segmentul,
+  cadrele și secundele exacte din masterele mp4.
+</p>
+
+<div class="joints">
+  <h2>Racorduri (ultimul cadru A · primul cadru B)</h2>
+  <div id="joints"></div>
+</div>
+
+<script>
+(function(){
+  /* ═══ CONFIG — sincron cu extract-frames.sh (SPEC): [folder, cadre, ss, to] ═══ */
+  var SEGS = [
+    ['act1',      144, 0, 8],
+    ['bridge12a', 144, 0, 8],
+    ['bridge12b',  60, 0, 8],
+    ['act2',      144, 0, 8],
+    ['bridge23',  144, 0, 8],
+    ['act3',      144, 0, 8]
+  ];
+  var N = 0; SEGS.forEach(function(s){ N += s[1]; });
+
+  function locate(i){ /* index global -> {seg, k} */
+    for (var s = 0; s < SEGS.length; s++){
+      if (i < SEGS[s][1]) return { seg: SEGS[s], k: i, si: s };
+      i -= SEGS[s][1];
+    }
+  }
+  function SRC(i){
+    var L = locate(i);
+    return 'assets/film/' + L.seg[0] + '/f_' + String(L.k + 1).padStart(3, '0') + '.webp';
+  }
+  function masterTime(L){ /* secunda din masterul mp4 pentru cadrul k al segmentului */
+    var fps = L.seg[1] / (L.seg[3] - L.seg[2]);
+    return L.seg[2] + L.k / fps;
+  }
+
+  /* ═══ stare ═══ */
+  var cur = 0, playing = false, timer = null, inP = null, outP = null;
+  var KEY = 'iris-review-v1';
+  var markers = [];
+  try { markers = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){}
+
+  var img = document.getElementById('frame'), hud = document.getElementById('hud');
+  var slider = document.getElementById('slider'); slider.max = N - 1;
+  var loadbox = document.getElementById('loadbox'), lpct = document.getElementById('lpct');
+
+  /* ═══ preincarcare ═══ */
+  var imgs = new Array(N), loaded = 0;
+  (function pumpAll(){
+    var next = 0, active = 0;
+    (function pump(){
+      while (active < 12 && next < N){
+        (function(i){
+          active++;
+          var im = new Image();
+          im.onload = im.onerror = function(){
+            active--; imgs[i] = im; loaded++;
+            lpct.textContent = Math.round(loaded / N * 100) + '%';
+            if (loaded >= N){ loadbox.style.display = 'none'; show(0); buildJoints(); }
+            else pump();
+          };
+          im.src = SRC(i);
+        })(next++);
+      }
+    })();
+  })();
+
+  /* ═══ afisare ═══ */
+  function show(i){
+    cur = Math.max(0, Math.min(N - 1, i));
+    img.src = SRC(cur);
+    slider.value = cur;
+    var L = locate(cur);
+    hud.innerHTML = '<b>' + L.seg[0] + '</b> · cadru ' + (L.k + 1) + '/' + L.seg[1] +
+      ' · master ' + masterTime(L).toFixed(2) + 's · global ' + (cur + 1) + '/' + N;
+    drawCursor();
+  }
+
+  /* ═══ ruler pe segmente + marcaje ═══ */
+  var ruler = document.getElementById('ruler'), marksbar = document.getElementById('marksbar');
+  SEGS.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'seg'; d.style.width = (s[1] / N * 100) + '%'; d.title = s[0];
+    ruler.appendChild(d);
+  });
+  var cursorEl = document.createElement('div'); cursorEl.className = 'cursor'; ruler.appendChild(cursorEl);
+  function drawCursor(){ cursorEl.style.left = 'calc(' + (cur / (N - 1) * 100) + '% - 1px)'; }
+  ruler.addEventListener('click', function(e){
+    var r = ruler.getBoundingClientRect();
+    show(Math.round((e.clientX - r.left) / r.width * (N - 1)));
+  });
+  function drawMarks(){
+    marksbar.innerHTML = '';
+    markers.forEach(function(m){
+      var i = document.createElement('i');
+      i.style.left = (m.g0 / N * 100) + '%';
+      i.style.width = Math.max(0.25, (m.g1 - m.g0 + 1) / N * 100) + '%';
+      i.title = m.tag + (m.note ? ': ' + m.note : '');
+      marksbar.appendChild(i);
+    });
+  }
+
+  /* ═══ marcaje ═══ */
+  var inout = document.getElementById('inout');
+  function refreshInOut(){
+    inout.textContent = (inP == null && outP == null)
+      ? 'fără selecție — marcajul va fi pe cadrul curent'
+      : 'IN: ' + (inP == null ? '—' : inP + 1) + ' · OUT: ' + (outP == null ? '—' : outP + 1);
+  }
+  function fmt(m){
+    var range = m.f0 === m.f1 ? 'f' + m.f0 : 'f' + m.f0 + '–f' + m.f1;
+    var t = m.t0 === m.t1 ? m.t0 + 's' : m.t0 + '–' + m.t1 + 's';
+    return '[' + m.seg + '] ' + range + ' (master ' + t + ') · ' + m.tag;
+  }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(markers)); drawMarks(); renderList(); }
+  function renderList(){
+    var list = document.getElementById('list'); list.innerHTML = '';
+    markers.forEach(function(m, idx){
+      var d = document.createElement('div'); d.className = 'mk';
+      d.innerHTML = '<span class="where">' + fmt(m) + '</span><span class="note">' +
+        (m.note || '') + '</span><a class="del" href="#">șterge</a>';
+      d.addEventListener('click', function(e){
+        if (e.target.className === 'del'){ e.preventDefault(); markers.splice(idx, 1); save(); }
+        else show(m.g0);
+      });
+      list.appendChild(d);
+    });
+  }
+  function addMarker(){
+    var g0 = inP != null ? inP : cur, g1 = outP != null ? outP : g0;
+    if (g1 < g0){ var t = g0; g0 = g1; g1 = t; }
+    var L0 = locate(g0), L1 = locate(g1);
+    markers.push({
+      seg: L0.seg[0], segEnd: L1.seg[0],
+      f0: L0.k + 1, f1: L1.k + 1, g0: g0, g1: g1,
+      t0: +masterTime(L0).toFixed(2), t1: +masterTime(L1).toFixed(2),
+      tag: document.getElementById('tag').value,
+      note: document.getElementById('note').value.trim(),
+      la: new Date().toISOString().slice(0, 16)
+    });
+    document.getElementById('note').value = ''; inP = outP = null; refreshInOut(); save();
+  }
+
+  /* ═══ controale ═══ */
+  function step(d){ show(cur + d); }
+  function togglePlay(){
+    playing = !playing;
+    document.getElementById('bPlay').textContent = playing ? '❚❚ pauză' : '▶ play';
+    if (playing) timer = setInterval(function(){ if (cur >= N - 1) show(0); else step(1); }, 1000 / 18);
+    else clearInterval(timer);
+  }
+  slider.addEventListener('input', function(){ show(+slider.value); });
+  document.getElementById('bPlay').addEventListener('click', togglePlay);
+  document.getElementById('bPrev').addEventListener('click', function(){ step(-1); });
+  document.getElementById('bNext').addEventListener('click', function(){ step(1); });
+  document.getElementById('bIn').addEventListener('click', function(){ inP = cur; refreshInOut(); });
+  document.getElementById('bOut').addEventListener('click', function(){ outP = cur; refreshInOut(); });
+  document.getElementById('bAdd').addEventListener('click', addMarker);
+  document.addEventListener('keydown', function(e){
+    if (e.target.tagName === 'TEXTAREA') { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); addMarker(); } return; }
+    if (e.key === 'ArrowLeft'){ e.preventDefault(); step(e.shiftKey ? -10 : -1); }
+    else if (e.key === 'ArrowRight'){ e.preventDefault(); step(e.shiftKey ? 10 : 1); }
+    else if (e.key === ' '){ e.preventDefault(); togglePlay(); }
+    else if (e.key === 'i' || e.key === 'I'){ inP = cur; refreshInOut(); }
+    else if (e.key === 'o' || e.key === 'O'){ outP = cur; refreshInOut(); }
+    else if (e.key === 'Enter'){ addMarker(); }
+  });
+
+  /* ═══ export / import ═══ */
+  document.getElementById('bExport').addEventListener('click', function(){
+    var report = { version: 1, page: 'beat-prototype', exportat: new Date().toISOString(),
+                   segs: SEGS, markers: markers };
+    var json = JSON.stringify(report, null, 2);
+    try { navigator.clipboard.writeText(json); } catch(e){}
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    a.download = 'review-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+  });
+  document.getElementById('bImport').addEventListener('click', function(){
+    var json = prompt('Lipește JSON-ul raportului:');
+    if (!json) return;
+    try { markers = (JSON.parse(json).markers) || JSON.parse(json); save(); }
+    catch(e){ alert('JSON invalid'); }
+  });
+  document.getElementById('bClear').addEventListener('click', function(){
+    if (confirm('Ștergi toate marcajele?')){ markers = []; save(); }
+  });
+
+  /* ═══ boardul de racorduri ═══ */
+  function buildJoints(){
+    var box = document.getElementById('joints'); box.innerHTML = '';
+    var off = 0;
+    for (var s = 0; s < SEGS.length - 1; s++){
+      off += SEGS[s][1];
+      var row = document.createElement('div'); row.className = 'jrow';
+      var a = new Image(); a.src = SRC(off - 1);
+      var b = new Image(); b.src = SRC(off);
+      var lbl = document.createElement('span');
+      lbl.textContent = SEGS[s][0] + ' → ' + SEGS[s + 1][0];
+      row.appendChild(a); row.appendChild(lbl); row.appendChild(b);
+      (function(g){ row.addEventListener('click', function(){ show(g); window.scrollTo({top:0}); }); })(off - 1);
+      box.appendChild(row);
+    }
+  }
+
+  refreshInOut(); drawMarks(); renderList(); show(0);
+})();
+</script>
+</body>
+</html>
