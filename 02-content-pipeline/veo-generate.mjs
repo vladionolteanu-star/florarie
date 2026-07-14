@@ -92,30 +92,48 @@ It ends with the stem large in frame, water glinting at its base — the atelier
          INTERIOR (bridge12-portal.png = din interiorul picaturii). Nu o masca opaca — un drum
          de camera continuu care INTRA in picatura si iese in atelier. Joint a/b pe cadrul interior
          identic. In montaj: bridge12a intreg + bridge12b intreg. ——— */
-  /* proba single-clip (preferata daca tine): tot drumul portal intr-un singur clip.
-     Daca reuseste, montajul foloseste "bridge12" si renunti la split-ul a/b. */
+  /* SINGLE-CLIP cu TIMESTAMP PROMPTING (sintaxa oficiala Veo 3.1, toolkit/VEO-TEMPLATES.md §3).
+     Istoric: AT % respins de 3 ori (fara picatura, atelier inundat); v2 timestamps respins
+     (review-2026-07-14-bridge12-v2.json): glow auriu de nicaieri (f5), picatura cade "din cer"
+     fara origine diegetica (f46/f90), florist barbat vizibil sub apa (f90 — deriva de
+     identitate), iesire datata cu waterline (f108). v3 = constrangeri dure pe fiecare. */
   bridge12: {
     first: "act1-f2.png", last: "bridge12-emerge.png", duration: 8,
     prompt: `${FILM}\n${MOTION}
 PORTAL BRIDGE in ONE continuous take — the camera ENTERS a water droplet and comes out in the next
-world. The shot begins exactly on the tall pink peony leaning out of its dark metal bucket, water
-glinting at its base, the atelier still and empty.
-AT 25%: a dark-clad hand enters softly from the side and lifts the stem just clear of the water — a
-single large, backlit water DROPLET forms and hangs pendant at the base of the bloom, a warm caustic
-highlight glowing inside it. This droplet is the portal. The camera commits: one continuous accelerating
-dive straight at it — never veering around, never slowing, never pulling back.
-AT 50%: the camera pierces the droplet's convex surface — the whole frame becomes liquid: macro water,
-warm caustics, floating micro-bubbles, the world bending at the edges, every frame crisp and readable.
-AT 75%: the camera keeps gliding forward and SURFACES out of the water on the other side — the last
-caustics slide off the top of the frame and the refraction resolves into the atelier: the florist's
-dark-clad hands laying pink peony stems into a spiral bouquet on the black-clothed table, warm daylight
-from the side, the florist seen from BEHIND, face NEVER visible.
-IT ENDS above the table, clean and steady, a last thin veil of water-light lifting off the top edge.
-One single continuous forward journey at constant speed. The two worlds are NEVER visible at the same
-time — the change happens strictly INSIDE the water. No cut, no dissolve, no fade, no double exposure.`,
-    negative: `${NEG}, dissolve, double exposure, ghosting, superimposition, fade, split screen, diptych, side by side, two scenes at once, visible face`,
+world. This is a MACRO journey: the water exists ONLY as this one droplet and the water in the
+bucket — the atelier NEVER floods, there is no pool, no lake, no waterline across the room.
+NOTHING falls from above: no rain, no drips from the ceiling, no stream of water from the sky —
+the only water source in the scene is the bucket itself.
+[00:00-00:02] The camera is already gliding forward from the very first frame and never hesitates.
+The shot begins exactly on the tall pink peony leaning out of its dark metal bucket, water
+glinting at its base, the atelier still and empty. A dark-clad hand enters softly from the side —
+ONLY the hand and forearm — and lifts the stem just clear of the water: as the wet stem rises,
+ONE large droplet of the bucket's own water gathers at the base of the bloom and hangs pendant
+from it, trembling, attached to the stem. Inside it plays only a cool refracted daylight glint —
+NO glow, NO flare, NO flame, no new light source appears anywhere in the scene.
+[00:02-00:04] This pendant droplet is the portal. The camera commits: one continuous accelerating
+dive straight at it — never veering around, never slowing, never pulling back — until the
+droplet's convex surface fills the frame, surface tension bulging, micro-bubbles suspended inside.
+[00:04-00:06] The camera pierces the droplet's surface — the whole frame becomes liquid: macro
+water, soft caustics, floating micro-bubbles, the world bending at the edges, every frame crisp
+and readable. Deep in the liquid lens appear ONLY the refracted, blurred shapes of the florist's
+dark-clad HANDS at work — never a face, never a head, never a full human figure, never a man;
+the room is NEVER seen behind a horizontal water surface.
+[00:06-00:08] The camera keeps gliding forward and the water CLEARS OFF THE LENS — droplets and
+thin streaks slide off the glass and the refraction resolves into the atelier: the florist's
+dark-clad hands laying pink peony stems into a spiral bouquet on the black-clothed table, warm
+daylight from the side, the florist a slender figure in black seen strictly from BEHIND, face
+NEVER visible. IT ENDS above the table, clean and steady, a last thin veil of water-light lifting
+off the top edge of the lens.
+One single continuous forward journey at constant speed. The two worlds are NEVER visible at the
+same time — the change happens strictly INSIDE the water. No cut, no dissolve, no fade, no double
+exposure.`,
+    negative: `${NEG}, dissolve, double exposure, ghosting, superimposition, fade, split screen, diptych, side by side, two scenes at once, visible face, swimming pool, flooded room, underwater room, lake, pond, horizontal waterline, rain, water falling from the sky, dripping from ceiling, vertical stream of water, glowing orb, golden glow, lens flare, candle flame, fire, man, male florist, full human figure underwater`,
   },
 
+  /* fallback istoric (nefolosit in montaj din 2026-07-14): split-ul a/b pe cadrul INTERIOR,
+     pastrat pentru cazul in care o regenerare viitoare a single-clip-ului nu mai tine. */
   bridge12a: {
     first: "act1-f2.png", last: "bridge12-portal.png", duration: 8,
     prompt: `${FILM}\n${MOTION}
@@ -179,6 +197,36 @@ where a black ribbon starts its first loop. Craft since 1970, visible only in th
          intalnesc pe cadrul INTERIOR (bridge23-portal.png = din interiorul tunelului). Camera
          intra IN bucla, traverseaza tunelul de satin, iese pe buchetul finit. Panglica din tunel
          E ACEEASI panglica de pe buchet — continuitate fizica de obiect. ——— */
+  /* SINGLE-CLIP cu timestamp prompting (metoda validata pe bridge12, 2026-07-14) —
+     de probat intai pe --fast. Id-ul e "bridge23-portal" ca sa NU suprascrie masterul
+     vechi out/bridge23.mp4 (perdea/nivel 2, inca folosit in film ca placeholder).
+     Daca proba tine: extract-frames SPEC + SEGS trec pe bridge23-portal. */
+  "bridge23-portal": {
+    first: "act2-f2.png", last: "bridge23-emerge.png", duration: 8,
+    prompt: `${FILM}\n${MOTION}
+PORTAL BRIDGE in ONE continuous take — the camera ENTERS the loop of black satin ribbon as if it
+were a tunnel and comes out on the finished bouquet. The ribbon that forms the tunnel IS the ribbon
+being tied on the bouquet — one physical object, one continuous journey.
+[00:00-00:02] The shot begins exactly on the florist's dark-clad hands at the binding point of the
+bouquet: they pull the black satin ribbon tight and its first loop opens into a small dark eye. The
+camera glides FORWARD straight at the mouth of the loop in one continuous move — it never circles
+it, never slows, never pulls back — while the loop grows until its dark opening fills the centre of
+the frame, the satin edge catching a thin warm rim of light.
+[00:02-00:04] The camera crosses the threshold — black satin wraps the ENTIRE frame: a tunnel of
+black fabric, the weave visible in macro, faint specular highlights running along the fibres.
+[00:04-00:06] The tunnel deepens; far ahead a small warm point of window light appears and slowly
+widens as the camera keeps gliding toward it at constant speed.
+[00:06-00:08] The camera reaches the tunnel's mouth and the black satin sweeps outward to the edges
+of the frame — we emerge fully on the finished wrapped bouquet (lush pink peonies, deep burgundy
+anthurium, a threaded cherry strand, bound in the same black ribbon), held out toward the camera by
+a single dark-clad arm against the rough white plaster wall, rim-lit by warm daylight. IT ENDS on
+the bouquet held out, the last soft dark ribbon edges just leaving the corners of the frame.
+One single continuous forward glide, constant speed. The two worlds are NEVER visible at the same
+time — the change happens strictly INSIDE the ribbon tunnel. No cut, no dissolve, no fade, no
+double exposure.`,
+    negative: `${NEG}, dissolve, double exposure, ghosting, superimposition, fade, split screen, diptych, side by side, two scenes at once, visible face`,
+  },
+
   bridge23a: {
     first: "act2-f2.png", last: "bridge23-portal.png", duration: 8,
     prompt: `${FILM}\n${MOTION}
@@ -256,6 +304,8 @@ async function main() {
           resolution: "1080p",
           durationSeconds: shot.duration,   // ATENTIE: cu first+last frame, DOAR 8 merge
           negativePrompt: shot.negative,
+          // generateAudio: false NU merge pe Gemini API (testat 2026-07-14: 400
+          // INVALID_ARGUMENT) — e doar pe Vertex. Audio-ul vine mereu; il aruncam la extractie.
         },
       }),
     }

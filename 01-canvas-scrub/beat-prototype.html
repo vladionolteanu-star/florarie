@@ -40,7 +40,7 @@
   }
 
   /* ═══ BEAT (pinned) ═══ */
-  .beat{height:3000vh;position:relative}   /* inaltimea = cat de lent se scrubuie filmul (780 cadre) */
+  .beat{height:2190vh;position:relative}   /* inaltimea = cat de lent se scrubuie filmul (568 cadre; ~3.85vh/cadru, ritmul validat) */
   .pin{
     position:sticky;top:0;height:100vh;overflow:hidden;background:#141114;
     /* POSTER: primul cadru al secventei */
@@ -87,7 +87,7 @@
 
 <div class="static-fallback">
   <img src="assets/film/act1/f_001.webp" alt="Atelierul în zori — bujori în găleți">
-  <img src="assets/film/act3/f_144.webp" alt="Buchetul finit, întins spre tine">
+  <img src="assets/film/act3/f_083.webp" alt="Buchetul finit, întins spre tine">
 </div>
 
 <script>
@@ -95,12 +95,15 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   /* ═══════════════ CONFIG — tot ce schimbi e aici ═══════════════ */
-  /* filmul intreg, in ordinea povestii; [folder, nr. cadre] — sincron cu extract-frames.sh */
+  /* filmul intreg, in ordinea povestii; [folder, nr. cadre] — sincron cu extract-frames.sh.
+     bridge12x = coada comprimata a lui bridge12; bridge23p = tunelul de satin cusut
+     in intuneric dupa perdeaua bridge23 (montaj 2026-07-14, doar din edit). */
   var SEGS = [
-    ['act1', 144], ['bridge12a', 144], ['bridge12b', 60],
-    ['act2', 144], ['bridge23', 144], ['act3', 144]
+    ['act1', 110], ['bridge12', 100], ['bridge12x', 13],
+    ['act2', 103], ['bridge23', 86], ['bridge23w', 9],
+    ['bridge23p', 30], ['bridge23r', 34], ['act3', 83]
   ];
-  var N = 0; SEGS.forEach(function(s){ N += s[1]; });   /* 780 */
+  var N = 0; SEGS.forEach(function(s){ N += s[1]; });   /* 568 */
   /* path RELATIV: merge si din file://, si pe Vercel (root-ul face REDIRECT, nu rewrite,
      catre calea reala a paginii — asa base-ul URL ramane corect pentru assets/). */
   var SRC = function(i){

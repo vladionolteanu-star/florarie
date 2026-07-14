@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "page": "beat-prototype",
+  "exportat": "2026-07-14T13:57:59.547Z",
+  "segs": [
+    ["act1", 144, 0, 8],
+    ["bridge12", 144, 0, 8],
+    ["act2", 144, 0, 8],
+    ["bridge23", 144, 0, 8],
+    ["act3", 144, 0, 8]
+  ],
+  "markers": [
+    {
+      "seg": "bridge12", "segEnd": "bridge12", "f0": 5, "f1": 5, "g0": 148, "g1": 148,
+      "t0": 0.22, "t1": 0.22, "tag": "blocaj",
+      "note": "aici se opreste brusc si incepe mizeria aia galben aurie  de nicaieri ai slop total.",
+      "la": "2026-07-14T13:56"
+    },
+    {
+      "seg": "bridge12", "segEnd": "bridge12", "f0": 46, "f1": 46, "g0": 189, "g1": 189,
+      "t0": 2.5, "t1": 2.5, "tag": "blocaj", "note": "", "la": "2026-07-14T13:56"
+    },
+    {
+      "seg": "bridge12", "segEnd": "bridge12", "f0": 90, "f1": 90, "g0": 233, "g1": 233,
+      "t0": 4.94, "t1": 4.94, "tag": "blocaj",
+      "note": "Picatura aia pica din cer nu are niciun sens dpdv poveste",
+      "la": "2026-07-14T13:57"
+    },
+    {
+      "seg": "bridge12", "segEnd": "bridge12", "f0": 90, "f1": 90, "g0": 233, "g1": 233,
+      "t0": 4.94, "t1": 4.94, "tag": "blocaj",
+      "note": "aici pare ca e sub apa floristul care  e barbat",
+      "la": "2026-07-14T13:57"
+    },
+    {
+      "seg": "bridge12", "segEnd": "bridge12", "f0": 108, "f1": 108, "g0": 251, "g1": 251,
+      "t0": 5.94, "t1": 5.94, "tag": "blocaj", "note": "", "la": "2026-07-14T13:57"
+    },
+    {
+      "seg": "bridge12", "segEnd": "bridge12", "f0": 108, "f1": 108, "g0": 251, "g1": 251,
+      "t0": 5.94, "t1": 5.94, "tag": "blocaj",
+      "note": "iar trecerea asta e de 2016 ceva rau de tot",
+      "la": "2026-07-14T13:57"
+    }
+  ]
+}

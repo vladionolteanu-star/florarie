@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "page": "beat-prototype",
+  "exportat": "2026-07-14T10:11:33.471Z",
+  "segs": [
+    ["act1", 144, 0, 8],
+    ["bridge12a", 144, 0, 8],
+    ["bridge12b", 60, 0, 8],
+    ["act2", 144, 0, 8],
+    ["bridge23", 144, 0, 8],
+    ["act3", 144, 0, 8]
+  ],
+  "markers": [
+    { "seg": "act1", "f0": 39, "f1": 39, "t0": 2.11, "tag": "ai-tell", "note": "" },
+    { "seg": "act1", "f0": 142, "f1": 142, "t0": 7.83, "tag": "blocaj", "note": "tranzitia aici e sacadata brusc" },
+    { "seg": "bridge12a", "f0": 69, "f1": 69, "t0": 3.78, "tag": "ai-tell", "note": "aici se face acest gold f slopish" },
+    { "seg": "bridge12b", "f0": 6, "f1": 6, "t0": 0.67, "tag": "blocaj", "note": "" },
+    { "seg": "bridge12b", "f0": 53, "f1": 53, "t0": 6.93, "tag": "logica", "note": "aici ramane pe ecran linia aia de apa inutil" },
+    { "seg": "act2", "f0": 8, "f1": 8, "t0": 0.39, "tag": "ai-tell", "note": "" },
+    { "seg": "act2", "f0": 34, "f1": 34, "t0": 1.83, "tag": "altceva", "note": "tranzitie penibila de 2016" }
+  ]
+}

@@ -74,9 +74,14 @@ Concret în pipeline (`02-content-pipeline/`), o punte-portal cere patru lucruri
    nu între clipuri — iar actul următor PORNEȘTE pe cadrul EMERGE. Fiecare joint din montaj cade
    pe două cadre identice; altfel ai reintrodus un cut nivel 0 chiar la ușa portalului.
 2. **Prompturi de bridge 3-4× mai lungi decât actele** — cu traseul optic (refracție, focus shift,
-   distorsiunea care se corectează), ce vede camera la 25/50/75%, ce NU face (nu se oprește, nu se
+   distorsiunea care se corectează), ce vede camera pe etape, ce NU face (nu se oprește, nu se
    întoarce, nu face dissolve, nu arată două lumi simultan), și fizica luminii în interior (caustice
    prin apă, reflexii pe satin).
+   **Etapele se scriu cu TIMESTAMP PROMPTING, nu cu procente** (validat pe Iris, 2026-07-14):
+   sintaxa oficială Veo 3.1 `[00:00-00:02] … [00:02-00:04] …` a ținut traseul optic al portalului
+   prin picătură acolo unde „AT 25%/50%/75%" eșuase de 3 ori (fără picătură, atelier inundat).
+   Timestamps = shot list pe care modelul o respectă; procentele = doar sugestie.
+   Template-ul complet: `scrollytelling-boilerplate/toolkit/VEO-TEMPLATES.md` §3+§7.
 3. **Cadru macro-interior generat** (nu doar scris ca PNG de reparație) ca punct de control intermediar:
    puntea rulează în 2 clipuri care se întâlnesc pe cadrul INTERIOR (cel mai adânc punct), nu pe o mască
    opacă. Probează întâi single-clip <ultimul cadru al actului>→EMERGE pe `--fast`; dacă ține
@@ -92,6 +97,15 @@ oportunitatea principală a întregului pipeline.
 
 ## Montaj
 
+- **Cusătura în negru** (validată pe Iris, 2026-07-14): două mastere diferite se pot coase
+  invizibil pe cadre complet NEGRE — ex. perdeaua care acoperă cadrul (masterul vechi) tăiată
+  exact pe negrul complet + interiorul de tunel al altui master, cu punctul de lumină care se
+  „aprinde" imediat după cusătură. Așa un element care altfel „pică din cer" (tunelul de satin)
+  se leagă diegetic de obiectul care a umplut cadrul. Fereastra de negru e de obicei sub 0.5s —
+  se găsește cu probe fine (fps=8), nu cu ochiul liber pe play.
+- **Zonele slabe se comprimă temporal, nu se taie** când sunt în mijlocul unui drum de cameră:
+  aceleași secunde primesc de 2-3× mai puține cadre în SPEC (segment separat, ex. bridge12x) —
+  pe scroll defectul trece în câteva cadre în loc să locuiască acolo.
 - **Mai scurt e mai bun.** Fiecare act ține cât să respiri o dată. Punțile sunt vedetele;
   actele sunt respirațiile dintre ele. **Când tai, taie din acte, niciodată din punți.**
 - **Foarfeca înainte de regenerare.** Tot ce se rezolvă cu trim + SEGS/HOLD/LEAD se rezolvă
