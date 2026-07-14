@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/01-canvas-scrub/beat-prototype.html" }
+  ]
+}
