@@ -111,10 +111,10 @@
 
   /* ═══ OUTRO — dupa film pagina se aseaza pe paper, nu pe negru ═══ */
   .outro{
-    padding:14vh 24px calc(150px + env(safe-area-inset-bottom));
+    padding:14vh 24px 10vh;
     display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;
   }
-  .outro .eyebrow{
+  .eyebrow{
     font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
     color:var(--accent);
   }
@@ -125,6 +125,31 @@
   .outro .txt{
     font-family:var(--body);font-size:15.5px;line-height:1.65;color:var(--ink-soft);
     max-width:52ch;
+  }
+
+  /* ═══ PROCES — cum s-a realizat, in 7 pasi ═══ */
+  .process{
+    max-width:640px;margin:0 auto;
+    padding:6vh 24px calc(150px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .process h2{
+    font-family:var(--head);font-weight:600;letter-spacing:-.01em;
+    font-size:clamp(24px,5vw,34px);line-height:1.2;margin-bottom:18px;
+  }
+  .step{display:grid;grid-template-columns:44px 1fr;gap:0 14px;padding:18px 0;
+    border-top:1px solid rgba(20,17,20,.12)}
+  .step .no{
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--accent);
+    padding-top:5px;
+  }
+  .step h3{
+    font-family:var(--head);font-weight:600;font-size:21px;letter-spacing:-.01em;
+    line-height:1.25;margin-bottom:8px;
+  }
+  .step p{
+    font-family:var(--body);font-size:14.5px;line-height:1.65;color:var(--ink-soft);
+    grid-column:2;
   }
 
   /* ═══ REDUCED MOTION ═══ */
@@ -168,6 +193,75 @@
   <p class="txt">Filmul de mai sus nu rulează singur — înaintează cadru cu cadru, în ritmul
   degetului tău: bujorii ridicați din apă, drumul prin picătură, tunelul panglicii,
   buchetul întins spre tine. Florăria Iris leagă buchete în București din 1970.</p>
+</section>
+
+<section class="process">
+  <p class="eyebrow">Cum s-a realizat</p>
+  <h2>De la fotografii reale la film, în șapte pași</h2>
+
+  <div class="step"><span class="no">01</span>
+    <h3>Scenariul și cadrele principale („ancorele")</h3>
+    <p>Nu ne apucăm direct de filmat. Întâi scriem povestea în 3-5 „acte" (ca la teatru),
+    fiecare rezumat într-o singură propoziție. Partea cea mai importantă este să ne imaginăm
+    cum trecem de la o scenă la alta (ex: camera intră printr-o perdea și iese în altă
+    cameră) — aceasta este „puntea". Apoi, folosind Inteligența Artificială, transformăm
+    fotografiile reale primite de la client în fotografii cinematografice perfecte. Acestea
+    sunt „ancorele": punctul de pornire și de oprire pentru mișcarea video. Dacă o poză de
+    bază arată dubios, tot video-ul va arăta dubios, deci aici corectăm la sânge.</p>
+  </div>
+
+  <div class="step"><span class="no">02</span>
+    <h3>„Filmarea" (clipurile video)</h3>
+    <p>Aici „dăm viață" pozelor statice. Folosim un alt sistem de Inteligență Artificială
+    (Veo), căruia îi dăm două poze perfecte — cea de început și cea de final — și îi spunem:
+    „Lipește-le printr-o mișcare fluidă de cameră". Facem asta pentru fiecare scenă și pentru
+    fiecare „punte" de tranziție. Rezultatul: mai multe clipuri video scurte și brute, cu
+    viteză constantă. Dacă vreunul tremură sau pare artificial, e aruncat și refăcut.</p>
+  </div>
+
+  <div class="step"><span class="no">03</span>
+    <h3>Montajul și culoarea (post-producția)</h3>
+    <p>Luăm bucățile brute de filmare și le tăiem la milisecundă, astfel încât să se lege
+    perfect una de alta. Tot aici umblăm la „vopsea" (corecția de culoare): sfârșitul
+    clipului A și începutul clipului B trebuie să aibă exact aceeași nuanță și lumină, ca
+    ochiul vizitatorului să nu-și dea seama niciodată că sunt două clipuri lipite, ci să pară
+    un singur cadru continuu. La final, le mărunțim într-un format foarte mic, optimizat, ca
+    să nu blocheze internetul.</p>
+  </div>
+
+  <div class="step"><span class="no">04</span>
+    <h3>Testul suprem (prototipul)</h3>
+    <p>Înainte să asamblăm întregul film, luăm doar cea mai spectaculoasă secvență (punctul
+    culminant) și o transformăm într-un test interactiv funcțional. Îl trimitem clientului:
+    „Dă scroll pe asta. Așa se va simți tot filmul. Îți place?". Regula de aur: lucrul se
+    oprește aici. Nu se construiește nimic mai departe până când clientul nu zice „DA!".</p>
+  </div>
+
+  <div class="step"><span class="no">05</span>
+    <h3>Asamblarea finală (filmul întreg)</h3>
+    <p>Clientul a zis da, deci acum toate clipurile montate se leagă de rotița de la mouse
+    (scroll). Noi dictăm regulile: cât de repede se mișcă acțiunea raportat la cât dă omul
+    din deget, la ce cadru exact începe o anumită mișcare — și ne asigurăm că totul alunecă
+    fin, fără sacadări, chiar și pe un telefon mobil cu internet mai slab.</p>
+  </div>
+
+  <div class="step"><span class="no">06</span>
+    <h3>Retușurile și finisarea (rundele de feedback)</h3>
+    <p>Acum că totul funcționează, mai trecem cu pieptănul des prin el: defecte invizibile la
+    prima vedere, mici greșeli de încărcare a imaginilor — și notăm absolut orice regulă nouă
+    învățată în proiect, ca s-o refolosim data viitoare. Fiecare ședință de lucru lasă „un
+    bilet" foarte clar pentru următoarea, astfel încât nimic din ce s-a discutat să nu se
+    piardă pe drum.</p>
+  </div>
+
+  <div class="step"><span class="no">07</span>
+    <h3>Marea lansare (integrare și deploy)</h3>
+    <p>Filmul final este inserat în pagina web propriu-zisă, printre textele și designul
+    general al site-ului. Se pun la punct detaliile de finețe (un scroll general mai plăcut,
+    mai lent) și totul se împachetează și se „urcă" pe internet. Facem ultimele teste ca să
+    pice bine pe orice ecran și abia apoi trimitem clientului link-ul final, public, pe care
+    îl poate arăta lumii.</p>
+  </div>
 </section>
 
 <script>
