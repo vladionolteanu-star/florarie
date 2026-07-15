@@ -40,7 +40,7 @@
   }
 
   /* ═══ BEAT (pinned) ═══ */
-  .beat{height:1460vh;position:relative}   /* inaltimea = cat de lent se scrubuie filmul (378 cadre; ~3.85vh/cadru, ritmul validat) */
+  .beat{height:1690vh;position:relative}   /* inaltimea = cat de lent se scrubuie filmul (439 cadre; ~3.85vh/cadru, ritmul validat) */
   .pin{
     position:sticky;top:0;height:100vh;overflow:hidden;background:#141114;
     /* POSTER: primul cadru al secventei */
@@ -274,10 +274,10 @@
      in intuneric dupa perdeaua bridge23 (montaj 2026-07-14, doar din edit). */
   var SEGS = [
     ['bridge12', 100], ['bridge12x', 13],
-    ['act2', 70], ['bridge23', 86], ['bridge23w', 9],
-    ['bridge23p', 30], ['bridge23r', 34], ['act3', 36]
+    ['act2', 103], ['bridge23', 86], ['bridge23w', 9],
+    ['bridge23p', 58], ['bridge23r', 34], ['act3', 36]
   ];
-  var N = 0; SEGS.forEach(function(s){ N += s[1]; });   /* 378 */
+  var N = 0; SEGS.forEach(function(s){ N += s[1]; });   /* 439 */
   /* path RELATIV: merge si din file://, si pe Vercel (root-ul face REDIRECT, nu rewrite,
      catre calea reala a paginii — asa base-ul URL ramane corect pentru assets/). */
   var SRC = function(i){
@@ -287,7 +287,7 @@
     }
   };
   var PRE = 0.04, POST = 0.96;                   /* capete de "asezare" la intrarea/iesirea din pin */
-  var LERP_K = 6.5;                              /* netezirea exponentiala */
+  var LERP_K = 9;                                /* netezirea exponentiala (tau ~111ms) — urcat de la 6.5 ca sa nu trailuiasca dupa deget */
   var AHEAD = 32, BEHIND = 12;                   /* fereastra de bitmaps */
   /* ═══════════════════════ SFARSIT CONFIG ═══════════════════════ */
 

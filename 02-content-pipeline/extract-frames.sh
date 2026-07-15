@@ -49,17 +49,21 @@ QUALITY=54
 #     portal) e ARUNCATA la montaj.
 # Montaj v3 (review 2026-07-14 14:43, 4 marcaje):
 #   ACT1 ELIMINAT COMPLET — filmul incepe direct pe tulpina (bridge12 @0.4s); primele
-#   8 secunde nu ajutau povestea · act2 comprimat ~1.5x (prea multe miscari de mana) ·
-#   bridge23w primeste ZOOM DE PLONJARE in tunel (crop progresiv, vezi zoom_seg jos) ·
-#   act3 se opreste la 2.0s (inainte de festivalul mainilor) si se incheie cu zoom
-#   progresiv IN buchet.
+#   8 secunde nu ajutau povestea · bridge23w primeste ZOOM DE PLONJARE in tunel (crop
+#   progresiv, vezi zoom_seg jos) · act3 se opreste la 2.0s (inainte de festivalul
+#   mainilor) si se incheie cu zoom progresiv IN buchet.
+# SMOOTHNESS PASS (2026-07-14, "sacadat/lag"): fiecare segment adus la ~18fps (reteta de
+#   livrare) — act2 70->103 (era 12fps, sacadat) si tunelul bridge23p 30->58 (era 9fps,
+#   cel mai sacadat cadru din film). Ritmul de scroll ramane 3.85vh/cadru => act2 si
+#   tunelul ocupa proportional mai mult scroll, dar curg fin. Lag-ul se taie din LERP_K
+#   (6.5->9) in beat-prototype.html, nu de aici.
 SPEC="
 bridge12 0.4 6 100 bridge12-ts
 bridge12x 6 7.3 13 bridge12-ts
-act2 2.3 8 70
+act2 2.3 8 103
 bridge23 0.3 5.1 86
 bridge23w 5.1 5.92 9 bridge23
-bridge23p 2.25 5.5 30 bridge23-portal
+bridge23p 2.25 5.5 58 bridge23-portal
 bridge23r 5.5 7.35 34 bridge23-portal
 act3 0 2.0 36
 "
